@@ -1,0 +1,45 @@
+import requests
+import pprint
+import jsonpath
+
+all_name = []
+all_hots = []
+# https://www.douyu.com/gapi/rknc/directory/yzRec/1
+# https://www.douyu.com/gapi/rknc/directory/yzRec/1
+for i in range(1,7):
+    url = "https://www.douyu.com/gapi/rknc/directory/yzRec/{}".format(i)
+    headers = {"user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36",
+               "cookie":"dy_did=d3205b7ad9744004ae52582b00041601; acf_did=d3205b7ad9744004ae52582b00041601; Hm_lvt_e99aee90ec1b2106afe7ec3b199020a7=1611917080; Hm_lpvt_e99aee90ec1b2106afe7ec3b199020a7=1611917602"}
+
+    
+    resp = requests.get(url,headers=headers)
+    
+    # 从根结点，跨区段，不管结构，只管提取到想要的字段
+    names = jsonpath.jsonpath(resp.json(),'$..nn')    # jsonpath 语法
+    hots = jsonpath.jsonpath(resp.json(),'$..ol')
+    for name in names:
+        all_name.append(name)
+    for hot in hots:
+        all_hots.append(hot)
+
+
+
+# print(names)
+# print(hot)
+# 相关联
+data_dict = {}
+for name,value in zip(all_name,all_hots):
+    # print(name,value)
+    data_dict[name] = value
+
+# print(data_dict)
+# print(data_dict.values())  值列表
+# print(data_dict.items())    # 返回元组
+# lambda匿名函数，功能是取到的是data_dict.items()的所有数据
+change = sorted(data_dict.items(),key=lambda x:x[1],reverse=True)
+for player,hot_num in enumerate(change):
+    output = "第{}名==========是{}=======人气:{}!!!!"
+    outputs = output.format(player + 1,hot_num[0],hot_num[1])
+    print(outputs)
+
+
